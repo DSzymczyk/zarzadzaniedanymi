@@ -47,7 +47,7 @@ $(document).ready(function () {
             title: 'Zarządzanie danymi',
             subtitle: 'Wykres'
         },
-            width: 900,
+            width: 750,
             height: 500
         };
 
