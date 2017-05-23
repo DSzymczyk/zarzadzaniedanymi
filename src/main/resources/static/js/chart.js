@@ -24,7 +24,7 @@ $(document).ready(function () {
 
         //CHART
         var chartData = new google.visualization.DataTable();
-        chartData.addColumn('number', 'Day');
+        chartData.addColumn('number', ' ');
         chartData.addColumn('number', 'Z1');
         chartData.addColumn('number', 'Z2');
         chartData.addColumn('number', 'Z3');
