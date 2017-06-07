@@ -1,57 +1,75 @@
-$(document).ready(function () {
+var container, camera, scene, renderer, mesh,
 
-    var tableData = [], chartData = [];
+				mouse = { x: 0, y: 0 },
+				objects = [],
 
-    $('#add_button').on('click', function(){
-        $('#input_file').click();
-    });
+				count = 0,
 
-    google.charts.load('current', {'packages':['line', 'table']});
-    google.charts.setOnLoadCallback( function () {
-        //TABLE
-        var tableData = new google.visualization.DataTable();
-        tableData.addColumn('string', 'Nazwa');
-        tableData.addColumn('boolean', 'Poprawny');
-        tableData.addRows([
-            ['step1.k', true],
-            ['step2.k',  false],
-            ['step3.k', true],
-            ['step4.k',  true]
-        ]);
+				CANVAS_WIDTH = 950,
+				CANVAS_HEIGHT = 900;
 
-        var table = new google.visualization.Table(document.getElementById('table_container'));
-        table.draw(tableData, {showRowNumber: true, width: '100%', height: '100%'});
+			canvas = document.getElementById( 'mycanvas' );
 
-        //CHART
-        var chartData = new google.visualization.DataTable();
-        chartData.addColumn('number', ' ');
-        chartData.addColumn('number', 'Z1');
-        chartData.addColumn('number', 'Z2');
-        chartData.addColumn('number', 'Z3');
+			renderer = new THREE.WebGLRenderer();
+			//renderer.domElement = canvas;
+			renderer.setSize( CANVAS_WIDTH, CANVAS_HEIGHT );
+      canvas.appendChild( renderer.domElement );
 
-        chartData.addRows([
-            [1,  37.8, 80.8, 41.8],
-            [3,  25.4,   57, 25.7],
-            [4,  11.7, 18.8, 10.5],
-            [6,   8.8, 13.6,  7.7],
-            [7,   7.6, 12.3,  9.6],
-            [8,  12.3, 29.2, 10.6],
-            [10, 12.8, 30.9, 11.6],
-            [11,  5.3,  7.9,  4.7],
-            [13,  4.8,  6.3,  3.6],
-            [14,  4.2,  6.2,  3.4]
-        ]);
+			scene = new THREE.Scene();
 
-        var options = {
-        chart: {
-            title: 'Zarządzanie danymi',
-            subtitle: 'Wykres'
-        },
-            width: 750,
-            height: 500
-        };
+			camera = new THREE.PerspectiveCamera( 50, CANVAS_WIDTH / CANVAS_HEIGHT, 1, 5000 );
+			camera.position.y = 150;
+			camera.position.z = 500;
+			camera.lookAt( scene.position );
 
-        var chart = new google.charts.Line(document.getElementById('chart_container'));
-        chart.draw(chartData, google.charts.Line.convertOptions(options));
-    });
-});
+			mesh = new THREE.Mesh(
+				new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ),
+				new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true }
+			) );
+			scene.add( mesh );
+			objects.push( mesh );
+
+
+			// find intersections
+			var vector = new THREE.Vector3();
+			var raycaster = new THREE.Raycaster();
+
+			// mouse listener
+			document.addEventListener( 'mousedown', function( event ) {
+
+				// For the following method to work correctly, set the canvas position *static*; margin > 0 and padding > 0 are OK
+				mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1;
+				mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1;
+
+				// For this alternate method, set the canvas position *fixed*; set top > 0, set left > 0; padding must be 0; margin > 0 is OK
+				//mouse.x = ( ( event.clientX - container.offsetLeft ) / container.clientWidth ) * 2 - 1;
+				//mouse.y = - ( ( event.clientY - container.offsetTop ) / container.clientHeight ) * 2 + 1;
+
+				vector.set( mouse.x, mouse.y, 0.5 );
+				vector.unproject( camera );
+
+				raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+				intersects = raycaster.intersectObjects( objects );
+
+				if ( intersects.length > 0 ) {
+					console.log("hit");
+				}
+
+			}, false );
+
+			function render() {
+
+				mesh.rotation.y += 0.01;
+
+				renderer.render( scene, camera );
+
+			}
+
+			(function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			})();
