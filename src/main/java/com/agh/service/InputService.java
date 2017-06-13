@@ -85,19 +85,21 @@ public class InputService {
         Float max = nodes.stream().map(node -> node.getTemperature()).max(Comparator.comparing(t -> t)).get();
         Float min = nodes.stream().map(node -> node.getTemperature()).min(Comparator.comparing(t -> t)).get();
         float v = max - min;
+        List<NodeEntity> nodeEntities = new ArrayList<>();
         for (Node node : nodes) {
             float color = (((node.getTemperature()-min) / v));
-            NodeEntity nodeEntity = new NodeEntity(fileEntity, node.getId(), node.getX(), node.getY(), node.getZ(), color);
-            nodeRepository.save(nodeEntity);
+            nodeEntities.add(new NodeEntity(fileEntity, node.getId(), node.getX(), node.getY(), node.getZ(), color));
         }
+        nodeRepository.save(nodeEntities);
     }
 
     private void saveElementsToDb(List<Element> elements, FileEntity fileEntity) {
+        List<ElementEntity> elementEntities = new ArrayList<>();
         for (Element element : elements) {
             List<Integer> nodeList = new ArrayList<>(element.getNodeList());
-            ElementEntity elementEntity = new ElementEntity(element.getId(), fileEntity, element.getsId(),  nodeList.get(0), nodeList.get(1), nodeList.get(2), nodeList.get(3), nodeList.get(4), nodeList.get(5), nodeList.get(6), nodeList.get(7));
-            elementRepository.save(elementEntity);
+            elementEntities.add(new ElementEntity(element.getId(), fileEntity, element.getsId(),  nodeList.get(0), nodeList.get(1), nodeList.get(2), nodeList.get(3), nodeList.get(4), nodeList.get(5), nodeList.get(6), nodeList.get(7)));
         }
+        elementRepository.save(elementEntities);
     }
 
     public List<FileProxy> getLoadedFiles() {
